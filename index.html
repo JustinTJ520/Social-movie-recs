@@ -7,22 +7,30 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="style.css">
         <title>Website/Application Project</title>
-        <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
     </head>
 
     <body>
         <div class="topNav">
             <a class="active" href="#home">Home</a>
+            <button id="btn-login" disabled="true" onclick="login()">Log in</button>
+            <button id="btn-logout" disabled="true" onclick="logout()">Log out</button>
+            <div id="user-info" class="hidden">
+                <span id="username"></span>
+                <img id="user-picture" src="" alt="Profile Picture">
+            </div>
         </div>
-        <button id="login-btn" onclick="login()">Login</button>
-        <button id="logout-btn" onclick="logout()">Logout</button>
-        <p id="user-info"></p>
+        <div class="hidden" id="gated-content">
+            <label>
+              <pre id="ipt-access-token"></pre>
+            </label>
+        </div>
         <div id="search-bar">
             <form id="search-form">
                 <input type="text" id="search-input" placeholder="Search TMDb">
             </form>
         </div>
         <div id="movies-grid"></div>
+        <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
         <script src="script.js"></script>
 
     </body>

@@ -1,0 +1,73 @@
+body {
+    background-color: rgb(41, 38, 38);
+    color: white;
+}
+
+.topNav {
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    background-color: #333;
+    padding: 10px;
+    font-size: 17px;
+}
+
+.topNav a {
+    float: left;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+.topNav button {
+    margin-right: 10px;
+}
+
+.topNav button:disabled {
+    display: none;
+}
+
+#user-info {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+#username {
+    color: white;
+    margin-right: 10px;
+}
+
+#user-picture {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.topNav a:hover {
+    background-color: lightgray;
+    color: black;
+}
+
+.topNav a:active {
+    background-color: lightgray;
+    color: white;
+}
+
+#search-bar {
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+}
+
+#movies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.movie-card img {
+    width: 100%;
+}
