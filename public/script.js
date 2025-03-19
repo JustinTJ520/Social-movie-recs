@@ -13,109 +13,115 @@ let auth0Client = null;
 const fetchAuthConfig = () => fetch("/auth_config.json");
 
 const configureClient = async () => {
-    const response = await fetchAuthConfig();
-    const config = await response.json();
+  const response = await fetchAuthConfig();
+  const config = await response.json();
 
-    auth0Client = await createAuth0Client({
-        domain: config.domain,
-        clientId: config.clientId
-    });
-}
+  auth0Client = await createAuth0Client({
+    domain: config.domain,
+    clientId: config.clientId,
+  });
+};
 
 window.onload = async () => {
-    await configureClient();
+  await configureClient();
+
+  updateUI();
+
+  const isAuthenticated = await auth0Client.isAuthenticated();
+
+  if (isAuthenticated) {
+    return;
+  }
+
+  const query = window.location.search;
+  if (query.includes("code=") && query.includes("state=")) {
+    await auth0Client.handleRedirectCallback();
 
     updateUI();
 
-    const isAuthenticated = await auth0Client.isAuthenticated();
-
-    if (isAuthenticated) {
-    return;
-    }
-
-    const query = window.location.search;
-    if (query.includes("code=") && query.includes("state=")) {
-
-        await auth0Client.handleRedirectCallback();
-    
-        updateUI();
-
-        window.history.replaceState({}, document.title, "/");
-    }
-}
+    window.history.replaceState({}, document.title, "/");
+  }
+};
 
 const updateUI = async () => {
-    const isAuthenticated = await auth0Client.isAuthenticated();
-  
-    document.getElementById("btn-logout").disabled = !isAuthenticated;
-    document.getElementById("btn-login").disabled = isAuthenticated;
+  const isAuthenticated = await auth0Client.isAuthenticated();
 
-    const userInfoDiv = document.getElementById("user-info");
+  document.getElementById("btn-logout").disabled = !isAuthenticated;
+  document.getElementById("btn-login").disabled = isAuthenticated;
 
-    if (isAuthenticated) {
-        document.getElementById("gated-content").classList.remove("hidden");
-    
-        const user = await auth0Client.getUser();
+  const userInfoDiv = document.getElementById("user-info");
 
-        document.getElementById("username").textContent = `Welcome, ${user.nickname}`;
-        document.getElementById("user-picture").src = user.picture;
-        userInfoDiv.classList.remove("hidden");
+  if (isAuthenticated) {
+    document.getElementById("gated-content").classList.remove("hidden");
 
-    } else {
-        document.getElementById("gated-content").classList.add("hidden");
-        userInfoDiv.classList.add("hidden");
-    }
-}
+    const user = await auth0Client.getUser();
+
+    document.getElementById(
+      "username"
+    ).textContent = `Welcome, ${user.nickname}`;
+    document.getElementById("user-picture").src = user.picture;
+    userInfoDiv.classList.remove("hidden");
+  } else {
+    document.getElementById("gated-content").classList.add("hidden");
+    userInfoDiv.classList.add("hidden");
+  }
+};
 
 const login = async () => {
-    await auth0Client.loginWithRedirect({
-      authorizationParams: {
-        redirect_uri: window.location.origin
-      }
-    });
-}
+  await auth0Client.loginWithRedirect({
+    authorizationParams: {
+      redirect_uri: window.location.origin,
+    },
+  });
+};
 
 const logout = () => {
-    auth0Client.logout({
-      logoutParams: {
-        returnTo: window.location.origin
-      }
-    });
-}
+  auth0Client.logout({
+    logoutParams: {
+      returnTo: window.location.origin,
+    },
+  });
+};
 
 async function fetchMoviesNowPlaying() {
-    const response = await fetch(`${apiBaseUrl}/movie/now_playing?api_key=${apiKey}`);
-    const jsonResponse = await response.json();
-    const movies = jsonResponse.results;
+  const response = await fetch(
+    `${apiBaseUrl}/movie/now_playing?api_key=${apiKey}`
+  );
+  const jsonResponse = await response.json();
+  const movies = jsonResponse.results;
 
-    displayMovies(movies);
+  displayMovies(movies);
 }
 
 async function searchMovies(query) {
-    const response = await fetch(`${apiBaseUrl}/search/movie?api_key=${apiKey}&query=${query}`);
-    const jsonResponse = await response.json();
-    const movies = jsonResponse.results;
+  const response = await fetch(
+    `${apiBaseUrl}/search/movie?api_key=${apiKey}&query=${query}`
+  );
+  const jsonResponse = await response.json();
+  const movies = jsonResponse.results;
 
-    displayMovies(movies);
+  displayMovies(movies);
 }
 
 function displayMovies(movies) {
-    moviesGrid.innerHTML = movies.map(
-        (movie) => 
-            `
+  moviesGrid.innerHTML = movies
+    .map(
+      (movie) =>
+        `
             <div class="movie-card">
                 <img src="${imageBaseUrl}${movie.poster_path}" alt="${movie.title}"/>
                 <p>⭐${movie.vote_average}</p>
                 <h1>${movie.title}</h1>
             </div>
             `
-    ).join("");
+    )
+    .join("");
 }
 
 async function handleSearchFormSubmit(event) {
-    event.preventDefault();
-    const searchQuery = searchInput.value;
-    await searchMovies(searchQuery);
+  event.preventDefault();
+  const searchQuery = searchInput.value;
+  await searchMovies(searchQuery);
 }
 
 searchForm.addEventListener("submit", handleSearchFormSubmit);
